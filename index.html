@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blaine State by Frozy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/baconagain/lawhelper/refs/heads/main/strwhelper-01.svg">
+  <style>
+    :root {
+      --card-color: #2a2a2a;
+      --primary-color: #ff2e63;
+      --text-color: #dcdcdc;
+      --border-radius: 10px;
+      --accent-gold: #f0b90b;
+      --border-color: #3a3a3a;
+    }
+
+    html { height: 100%; scroll-padding-top: 60px; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #1a1a1a;
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    .tabs-navigation {
+      background-color: #252525; display: flex; justify-content: center; padding: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.3); flex-wrap: wrap; flex-shrink: 0;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .tab-link {
+      padding: 15px 30px; cursor: pointer; color: var(--text-color); font-weight: 600; font-size: 1rem; text-decoration: none; border-bottom: 3px solid transparent; transition: color 0.3s, border-color 0.3s;
+    }
+    .tab-link:hover { color: #fff; background-color: rgba(255,255,255,0.05); }
+    .tab-link.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .main-content {
+      max-width: 1800px; width: 100%; margin: 0 auto; padding: 2rem; box-sizing: border-box; flex-grow: 1; display: flex; align-items: center; justify-content: center;
+    }
+
+    .container {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem;
+    }
+    .column {
+      background-color: var(--card-color); border-radius: var(--border-radius); flex: 1 1 320px; max-width: 350px; overflow: hidden; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4); transition: box-shadow 0.3s ease;
+    }
+    .column:hover { box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5); }
+    .column h2 { background-color: transparent; border-bottom: 1px solid var(--primary-color); color: var(--primary-color); padding: 15px; margin: 0 15px; font-size: 1.2rem; font-weight: 600; text-align: center; }
+    .column ul { list-style-type: none; padding: 20px 30px; margin: 0; }
+    .column li { margin-bottom: 16px; }
+    .column a { color: var(--text-color); text-decoration: none; transition: color 0.2s ease-in-out; }
+    .column a:hover { color: var(--primary-color); }
+    
+    .memo-table {
+      width: 100%; border-collapse: collapse; background-color: #2c2c2c; border-radius: var(--border-radius); overflow: hidden; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+    }
+    .tab-content > div > .memo-table + .memo-table { margin-top: 2rem; }
+    .memo-table th { background-color: var(--accent-gold); color: #1a1a1a; padding: 15px; text-align: left; font-weight: 700; text-transform: uppercase; }
+    .memo-table td { padding: 12px 15px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+    .memo-table th, .memo-table td { border-right: 1px solid var(--border-color); }
+    .memo-table th:last-child, .memo-table td:last-child { border-right: none; }
+    .memo-table tbody tr:last-child td { border-bottom: none; }
+    .memo-table tbody tr { transition: background-color 0.2s ease; }
+    .memo-table tbody tr:hover { background-color: #383838; }
+    
+    .memo-table td.col-article { width: 10%; text-align: center; font-weight: 600; }
+    .memo-table .col-fine { width: 20%; text-align: right; }
+    .memo-table .annotation { color: var(--accent-gold); font-weight: 600; opacity: 0.9; }
+    .memo-table .col-ic-term { width: 15%; }
+    .memo-table .col-ooc-term {
+      width: 12%; text-align: center; color: rgba(255, 255, 255, 0.7); font-style: italic; font-size: 0.9em;
+    }
+
+    .procedural-container { display: flex; flex-wrap: wrap; gap: 2rem; }
+    .procedural-left { flex: 3 1 700px; min-width: 300px; }
+    .procedural-right {
+      flex: 1 1 350px; min-width: 300px; display: flex; flex-direction: column; gap: 2rem;
+    }
+    .info-block {
+      background-color: #2c2c2c; border-radius: var(--border-radius); box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4); overflow: hidden;
+    }
+    .info-block h3 { background-color: var(--accent-gold); color: #1a1a1a; padding: 12px 15px; margin: 0; font-size: 1.1rem; text-transform: uppercase; font-weight: 700; }
+    .info-block p, .info-block ol, .info-block .ten-codes { padding: 15px 20px; margin: 0; line-height: 1.6; }
+    .info-block ol { padding-left: 40px; }
+    .ten-codes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    #global-tooltip {
+      position: fixed; visibility: hidden; opacity: 0; z-index: 1000; background-color: #1a1a1a; color: var(--text-color); border: 1px solid var(--accent-gold); border-radius: 8px; padding: 10px 15px; min-width: 250px; max-width: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-align: left; font-weight: 400; font-style: normal; font-size: 0.9em; line-height: 1.5; transition: opacity 0.2s ease, visibility 0.2s ease; pointer-events: none;
+      /* --- ИЗМЕНЕНИЕ 1: Сохранение переносов строк --- */
+      white-space: pre-wrap;
+    }
+    
+    .col-description { position: relative; }
+    .col-description.has-note { cursor: help; }
+    .col-description-content { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .edit-note-btn {
+      cursor: pointer; font-size: 0.8em; opacity: 0; transition: opacity 0.2s;
+    }
+    .memo-table tbody tr:hover .edit-note-btn { opacity: 0.6; }
+    .edit-note-btn:hover { opacity: 1; }
+    
+    .col-description.has-note::after {
+      content: ''; position: absolute; top: 0; right: 0; width: 0; height: 0;
+      border-top: 8px solid var(--accent-gold); border-left: 8px solid transparent;
+    }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 100; display: none; align-items: center; justify-content: center;
+    }
+    .modal-content {
+      background-color: #2c2c2c; padding: 25px; border-radius: var(--border-radius); box-shadow: 0 5px 25px rgba(0,0,0,0.5); width: 90%; max-width: 500px;
+    }
+    .modal-content h3 { margin-top: 0; color: var(--accent-gold); }
+    .modal-content textarea {
+      width: 100%; height: 100px; background-color: #1a1a1a; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 8px; padding: 10px; box-sizing: border-box; resize: vertical; margin-top: 10px;
+    }
+    .modal-actions { margin-top: 20px; display: flex; justify-content: space-between; }
+    .modal-btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .btn-save { background-color: var(--accent-gold); color: #1a1a1a; }
+    .btn-delete { background-color: #555; color: var(--text-color); }
+    
+    /* --- ИЗМЕНЕНИЕ 2: Стили для полного редактора --- */
+    #editor-button {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 2000;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    #editor-modal .modal-content { max-width: 90vw; }
+    #editor-modal textarea { height: 70vh; font-family: monospace; font-size: 14px; }
+  </style>
+</head>
+<body>
+<nav class="tabs-navigation">
+  <a href="#info" class="tab-link active">Информация</a>
+  <a href="#memo" class="tab-link"></a>
+  <a href="#uk-memo" class="tab-link"></a>
+</nav>
+
+<main class="main-content">
+  <div> 
+    <!-- ВКЛАДКА 1 -->
+    <div id="info" class="tab-content active">
+      <div class="container">
+          <!-- Содержимое вкладки 1 без изменений -->
+          <div class="column"><h2>ПРАВИЛА СЕРВЕРА</h2><ul><li><a href="https://forum.gta5rp.com/threads/obshchiye-pravila-proyekta.3414615/" target="_blank" rel="noopener noreferrer">Общие правила проекта</a></li><li><a href="https://forum.gta5rp.com/threads/pravila-gosudarstvennykh-fraktsii.3410049/" target="_blank" rel="noopener noreferrer">Правила государственных фракций (Общие)</a></li><li><a href="https://forum.gta5rp.com/threads/pereopredeleniya-dopolneniya-pravil-gosudarstvennykh-fraktsii.3426383/" target="_blank" rel="noopener noreferrer">Дополнения правил государственных фракций (Blaine)</a></li></ul></div>
+          <div class="column"><h2>ОСНОВНЫЕ КОДЕКСЫ</h2><ul><li><a href="https://forum.gta5rp.com/threads/konstitutsiya-shtata-san-andreas-redaktsiya-ot-23-oktyabrya-2026-goda.3364587/" target="_blank" rel="noopener noreferrer">Конституция Штата</a></li><li><a href="https://forum.gta5rp.com/threads/protsessual-nyi-kodeks-shtata-san-andreas-redaktsiya-ot-23-oktyabrya-2026-goda.3364588/" target="_blank" rel="noopener noreferrer">Процессуальный Кодекс</a></li><li><a href="https://forum.gta5rp.com/threads/ugolovnyi-kodeks-shtata-san-andreas-redaktsiya-ot-23-oktyabrya-2026-goda.3364593/" target="_blank" rel="noopener noreferrer">Уголовный Кодекс</a></li><li><a href="https://forum.gta5rp.com/threads/kodeks-ob-administrativnykh-pravonarusheniyakh-shtata-san-andreas-redaktsiya-ot-23-oktyabrya-2026-goda.3364595/" target="_blank" rel="noopener noreferrer">Административный Кодекс</a></li><li><a href="https://forum.gta5rp.com/threads/eticheskii-kodeks-shtata-san-andreas-redaktsiya-ot-23-oktyabrya-2026-goda.3364589/" target="_blank" rel="noopener noreferrer">Этический кодекс</a></li><li><a href="https://forum.gta5rp.com/threads/dorozhnyi-kodeks-shtata-san-andreas-redaktsiya-ot-23-oktyabrya-2026-goda.3364591/" target="_blank" rel="noopener noreferrer">Дорожный Кодекс</a></li><li><a href="https://forum.gta5rp.com/threads/trudovoi-kodeks-shtata-san-andreas-redaktsiya-ot-23-oktyabrya-2026-goda.3364585/" target="_blank" rel="noopener noreferrer">Трудовой Кодекс</a></li><li><a href="https://forum.gta5rp.com/threads/grazhdanskii-kodeks-shtata-san-andreas-redaktsiya-ot-23-oktyabrya-2026-goda.3364592/" target="_blank" rel="noopener noreferrer">Гражданский кодекс</a></li></ul></div>
+          <div class="column"><h2>СПЕЦИАЛЬНЫЕ ЗАКОНЫ</h2><ul><li><a href="https://forum.gta5rp.com/threads/zakon-o-deyatel-nosti-ofisa-general-nogo-prokurora-shtata-san-andreas-redaktsiya-ot-23-oktyabrya-2026-goda.3364638/" target="_blank" rel="noopener noreferrer">Закон о Прокуратуре</a></li><li><a href="https://forum.gta5rp.com/threads/zakon-ob-advokature-i-advokat-skoi-deyatel-nosti-v-shtate-san-andreas-redaktsiya-ot-23-oktyabrya-2026-goda.3364637/" target="_blank" rel="noopener noreferrer">Закон об адвокатуре</a></li><li><a href="https://forum.gta5rp.com/threads/zakon-o-federal-nom-rassledovatel-skom-byuro-redaktsiya-ot-23-oktyabrya-2026-goda.3364642/" target="_blank" rel="noopener noreferrer">Закон FIB</a></li><li><a href="https://forum.gta5rp.com/threads/zakon-o-politseiskom-departamente-goroda-los-santos-redaktsiya-ot-23-oktyabrya-2026-goda.3364625/" target="_blank" rel="noopener noreferrer">Закон LSPD</a></li><li><a href="https://forum.gta5rp.com/threads/zakon-o-departamente-sherifa-okruga-blein-redaktsiya-ot-23-oktyabrya-2026-goda.3364626/" target="_blank" rel="noopener noreferrer">Закон LSSD</a></li><li><a href="https://forum.gta5rp.com/threads/zakon-o-natsional-noi-gvardii-shtata-san-andreas-redaktsiya-ot-23-oktyabrya-2026-goda.3364631/" target="_blank" rel="noopener noreferrer">Закон NG</a></li><li><a href="https://forum.gta5rp.com/threads/zakon-ob-obespechenii-neprikosnovennosti-gosudarstvennykh-sluzhashchikh-redaktsiya-ot-23-oktyabrya-2026-goda.3364618/" target="_blank" rel="noopener noreferrer">Закон "Об обеспечении неприкосновенности"</a></li><li><a href="https://forum.gta5rp.com/threads/zakon-o-gosudarstvennoi-taine-v-shtate-san-andreas-redaktsiya-ot-23-oktyabrya-2026-goda.3364624/" target="_blank" rel="noopener noreferrer">
+Закон “О государственной тайне"</a></li><li><a href="https://forum.gta5rp.com/threads/zakon-o-regulirovanii-oborota-oruzhiya-boyepripasov-i-spetssredstv-v-shtate-san-andreas-redaktsiya-ot-23-oktyabrya-2026-goda.3364620/" target="_blank" rel="noopener noreferrer">Закон об оружии</a></li></ul></div>
+          <div class="column"><h2>МАКРОСЫ/ПАМЯТКА</h2><ul><li><a href="https://docs.google.com/spreadsheets/d/1lXVbxTr-k77TYyJOfFixfKkLQG6Jg4JyGFzlF29Za2M/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Макросы</a></li><li><a href="https://forum.gta5rp.com/threads/zakon-ob-advokature-i-advokatskoi-dejatelnosti.2242557/" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://docs.google.com/spreadsheets/d/1De6kHuzL6TiCAP6o2sWc5ke_QimyL4z8072FaEKQusQ/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Памятка ДК/УК/АК</a></li><li><a href="https://baconagain.github.io/strawberry5rp/Zalog.html" target="_blank" rel="noopener noreferrer"></a></li><li><a 
+href="https://docs.google.com/spreadsheets/d/1rPiTiSDItzHYZtEM_MrHkAASYL7SAlTJA2eooSKNquk/edit?gid=1237841379#gid=1237841379" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://docs.google.com/spreadsheets/d/1_aQJbpCpWWtjuY7xJiRPP3kevkSi7GFrq8tNzba5czc/edit?usp=sharing" target="_blank" rel="noopener noreferrer"></a></li></ul></div>
+
+
+      </div>
+    </div>
+   <!-- ВКЛАДКА 2 -->
+<div id="memo" class="tab-content">
+  <div>
+    <table class="memo-table">
+      <thead>
+        <tr>
+          <th class="col-article">Статья</th>
+          <th>Административный Кодекс</th>
+          <th class="col-fine">Сумма штрафа</th>
+        </tr>
+      </thead>
+      <tbody class="note-table-body">
+        <tr>
+          <td class="col-article">8.10</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Незаконное приобретение, хранение, перевозка, изготовление, сбыт, передача наркотических средств от 1 до 10 (включительно) грамм. (включительно)</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до $20.000</td>
+        </tr>
+        <tr>
+          <td class="col-article">8.10.1</td>
+          <td class="col-description">
+            <div class="col-description-content"><span> Незаконное приобретение, хранение, перевозка, изготовление, сбыт, передача наркотических средств (свыше 10 единиц).</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine"> 10-40 мин КПЗ</td>
+        </tr>
+        <tr>
+          <td class="col-article">10.4</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Вмешательство или воспрепятствование гражданским лицом задержанию, аресту или разбирательству, проводимому уполномоченным государственным служащим.</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">$15.000 или 20-40 мин КПЗ</td>
+        </tr>
+        <tr>
+          <td class="col-article">10.4.1</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Вмешательство или воспрепятствование гос. сотрудником задержанию, аресту или разбирательству, проводимому уполномоченным государственным служащим.</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">от $15.000 до $25.000</td>
+        </tr>
+        <tr>
+          <td class="col-article">8.11</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Незаконное сокрытие своей личности без законного основания гражданским лицом на территории государственных учреждений, а также в общественных местах, за исключением случаев нахождения внутри личного автотранспорта ((ношение маски функционально скрывающей личность, шлема))</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до $15.000</td>
+        </tr>
+        <tr>
+          <td class="col-article">6.7</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Умышленное сокрытие своей личности, без законного основания гражданским лицом</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до $15.000</td>
+        </tr>
+        <tr>
+          <td class="col-article">6.8</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Хулиганство (нецензурная лексика более двух раз, жесты, крики, алкоголь и наркотики)</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до 15.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">6.9</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Нахождение в неприемлемом виде в общественных местах и государственных учреждениях</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до 15.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">6.9.1</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Ношение бронежилетов в общественных местах или на территории Государственных учреждений</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до 15.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">7.1</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Оскорбление, унижение чести и достоинства другого лица</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до 10.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">7.2</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Публичное оскорбление гражданина</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до 10.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">8.1</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Превышение нормы вылова водных биологических или охотничьих ресурсов</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">5.000$ за 1 кг</td>
+        </tr>
+        <tr>
+          <td class="col-article">8.2</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Браконьерство</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до 20.000$</td>
+        </tr>
+      </tbody>
+    </table>
+    <table class="memo-table">
+      <thead>
+        <tr>
+          <th class="col-article">Статья</th>
+          <th>Дорожный Кодекс</th>
+          <th class="col-fine">Сумма штрафа</th>
+        </tr>
+      </thead>
+      <tbody class="note-table-body">
+        <tr>
+          <td class="col-article">11</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Управление Т/С без номерных знаков</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">8.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">12</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Управление Т/С без регистрации номерных знаков в LSPD</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">10.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">13</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Езда на мото без шлема (исключение мопед)</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">5.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">14</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Продолжил движение после аварии</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">2.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">22</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Подрезание, не соблюдение безопасной дистанции, резкое торможение, препятствовании обгону</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до 5.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">28</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Беспорядочное движение по проезжей части пешеходами</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до 2.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">41</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Выезд на встречную полосу при двустороннем движении</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до 3.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">42</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Выезд на встречную полосу при одностороннем движении</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до 3.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">43</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Расположение на проезжей части медленных и крупногабаритных ТС</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до 3.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">44</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Движение Т/С по тротуарам, обочинам и велодорожкам</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до 3.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">45</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Скоростное ограничение в городе</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">1.000$ / 3.000$ / до 5.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">48</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Движение с чрезмерно малой скоростью, менее 30 км/ч, создающее помехи другим участникам движения</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до 2.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">52</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>На дорогах с двусторонним движением остановка и стоянка разрешены только с правой стороны</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до 2.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">54</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Остановка и парковка паралельно красному бордюру, на тротуаре, служебных стоянках, перекрёстках</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до 2.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">60</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Пересечение двойной желтой сплошной линии</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до 3.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">61</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Пересечение одиночной желтой сплошной линии</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">до 2.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">65</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Стоп-линия, остановиться у линии "STOP" или перед знаком, если линии нет</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">2.000$</td>
+        </tr>
+        <tr>
+          <td class="col-article">66</td>
+          <td class="col-description">
+            <div class="col-description-content"><span>Водитель обязан уступать пешеходам на обозначенных переходах (зебра или две параллельные линии)</span><span class="edit-note-btn">✏️</span></div>
+          </td>
+          <td class="col-fine">3.000$</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+    
+    <!-- ВКЛАДКА 3 -->
+    <div id="uk-memo" class="tab-content">
+      <div class="procedural-container">
+        <div class="procedural-left">
+          <table class="memo-table">
+            <thead>
+              <tr>
+                <th class="col-article">Статья</th>
+                <th class="col-description">Описание</th>
+                <th class="col-ic-term">Срок (IC)</th>
+                <th class="col-ooc-term">Срок (OOC)</th>
+              </tr>
+            </thead>
+            <tbody class="note-table-body">
+              <tr><td class="col-article">6.1 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Нанесение телесных повреждений <span class="annotation">[Нанесение увечий гражданскому]</span></span><span class="edit-note-btn">✏️</span></div></td><td>От 2 до 4 месяцев</td><td class="col-ooc-term">(10-20 мин)</td></tr>
+              <tr><td class="col-article">6.2 (FP)</td><td class="col-description"><div class="col-description-content"><span>Убийство, то есть умышленное причинение смерти другому человеку</span><span class="edit-note-btn">✏️</span></div></td><td>1 год</td><td class="col-ooc-term">(60 мин)</td></tr>
+              <tr><td class="col-article">6.3 (FP)</td><td class="col-description"><div class="col-description-content"><span>Тяжкое убийство, то есть убийство двух или более лиц</span><span class="edit-note-btn">✏️</span></div></td><td>2 года</td><td class="col-ooc-term">(120 мин)</td></tr>
+              <tr><td class="col-article">7.1 (FP)</td><td class="col-description"><div class="col-description-content"><span>Похищение человека</span><span class="edit-note-btn">✏️</span></div></td><td>1 год</td><td class="col-ooc-term">(60 мин)</td></tr>
+              <tr><td class="col-article">8.1 (FP)</td><td class="col-description"><div class="col-description-content"><span>Изнасилование, или иные действия сексуального характера</span><span class="edit-note-btn">✏️</span></div></td><td>1 год</td><td class="col-ooc-term">(60 мин)</td></tr>
+              <tr><td class="col-article">9.2 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Незаконное проникновение в жилище</span><span class="edit-note-btn">✏️</span></div></td><td>до 5 месяцев</td><td class="col-ooc-term">(до 25 мин)</td></tr>
+              <tr><td class="col-article">10.5 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Грабеж, то есть открытое хищение из чужого недвижимого, а также личного имущества</span><span class="edit-note-btn">✏️</span></div></td><td>до 5 месяцев</td><td class="col-ooc-term">(до 25 мин)</td></tr>
+              <tr><td class="col-article">10.5.2 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Кража, то есть скрытое хищение из чужого недвижимого, а также личного имущества <span class="annotation">[Кража со взломом]</span></span><span class="edit-note-btn">✏️</span></div></td><td>до 5 месяцев</td><td class="col-ooc-term">(до 25 мин)</td></tr>
+              <tr><td class="col-article">10.6 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Разбой, то есть нападение в целях хищения чужого имущества, с применением насилия <span class="annotation">[Вооружённое ограбление]</span></span><span class="edit-note-btn">✏️</span></div></td><td>до 5 месяцев</td><td class="col-ooc-term">(до 25 мин)</td></tr>
+              <tr><td class="col-article">10.7 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Неправомерное завладение автомобилем или иным транспортным средством <span class="annotation">[Авто угон]</span></span><span class="edit-note-btn">✏️</span></div></td><td>до 4 месяцев</td><td class="col-ooc-term">(до 20 мин)</td></tr>
+              <tr><td class="col-article">10.8 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Умышленные уничтожение или повреждение частного/государственного имущества</span><span class="edit-note-btn">✏️</span></div></td><td>до 5 месяцев</td><td class="col-ooc-term">(до 25 мин)</td></tr>
+              <tr><td class="col-article">10.9 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Проникновение на опечатанную территорию</span><span class="edit-note-btn">✏️</span></div></td><td>до 5 месяцев</td><td class="col-ooc-term">(до 25 мин)</td></tr>
+              <tr><td class="col-article">10.10 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Нападение на ганшоп <span class="annotation">[Рэкетирcтво]</span></span><span class="edit-note-btn">✏️</span></div></td><td>8 месяцев</td><td class="col-ooc-term">(40 мин)</td></tr>
+              <tr><td class="col-article">11.8 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Браконьерство добыча охотничьих ресурсов без соответствующей лицензии или превышение нормы</span><span class="edit-note-btn">✏️</span></div></td><td>до 5 месяцев</td><td class="col-ooc-term">(до 25 мин)</td></tr>
+              <tr><td class="col-article">12.3 (FP)</td><td class="col-description"><div class="col-description-content"><span>Захват или удержание лица в качестве заложника</span><span class="edit-note-btn">✏️</span></div></td><td>до 3 лет</td><td class="col-ooc-term">(90-180 мин)</td></tr>
+              <tr><td class="col-article">12.7 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Незаконное проникновение на охраняемый объект</span><span class="edit-note-btn">✏️</span></div></td><td>5 месяцев</td><td class="col-ooc-term">(25 мин)</td></tr>
+              <tr><td class="col-article">12.7.1 (FP)</td><td class="col-description"><div class="col-description-content"><span>Незаконное проникновение на объект повышенной секретности (Форт-Занкудо, офис FIB, Федеральная Тюрьма)</span><span class="edit-note-btn">✏️</span></div></td><td>1 год</td><td class="col-ooc-term">(60 мин)</td></tr>
+              <tr><td class="col-article">12.8 (FP)</td><td class="col-description"><div class="col-description-content"><span>Незаконное приобретение, хранение, использование, продажа огнестрельного оружия/боеприпасов</span><span class="edit-note-btn">✏️</span></div></td><td>до 1 года</td><td class="col-ooc-term">(до 60 мин)</td></tr>
+              <tr><td class="col-article">12.8.1 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Открытое ношение, а также незаконное использование холодного оружия</span><span class="edit-note-btn">✏️</span></div></td><td>до 8 месяцев</td><td class="col-ooc-term">(до 40 мин)</td></tr>
+              <tr><td class="col-article">12.9.1 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Приобретение, хранение, сбыт контрабанды <span class="annotation">[Контрабанда]</span></span><span class="edit-note-btn">✏️</span></div></td><td>до 4 месяцев</td><td class="col-ooc-term">(до 20 мин)</td></tr>
+              <tr><td class="col-article">12.11 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Организация или принуждение к проституции <span class="annotation">[Сутенёрство]</span></span><span class="edit-note-btn">✏️</span></div></td><td>до 4 месяцев</td><td class="col-ooc-term">(до 20 мин)</td></tr>
+              <tr><td class="col-article">12.12 (FP)</td><td class="col-description"><div class="col-description-content"><span>Использование средств электромагнитного излучения <span class="annotation">[ЭМИ]</span></span><span class="edit-note-btn">✏️</span></div></td><td>1 год</td><td class="col-ooc-term">(60 мин)</td></tr>
+              <tr><td class="col-article">12.13 (FP)</td><td class="col-description"><div class="col-description-content"><span>Нападение на военные или гуманитарные конвои, взлом, кража т/с <span class="annotation">[Кража военного имущества]</span></span><span class="edit-note-btn">✏️</span></div></td><td>1 год</td><td class="col-ooc-term">(60 мин)</td></tr>
+              <tr><td class="col-article">13.1 (FP)</td><td class="col-description"><div class="col-description-content"><span>Приобретение, хранение, перевозка и сбыт наркотических средств (свыше 10 грамм)</span><span class="edit-note-btn">✏️</span></div></td><td>1 год</td><td class="col-ooc-term">(60 мин)</td></tr>
+              <tr><td class="col-article">15.1 (FP)</td><td class="col-description"><div class="col-description-content"><span>Превышение должностных полномочий</span><span class="edit-note-btn">✏️</span></div></td><td>1 год</td><td class="col-ooc-term">(60 мин)</td></tr>
+              <tr><td class="col-article">15.4.2 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Предложение взятки должностному лицу в виде денег, иного имущества</span><span class="edit-note-btn">✏️</span></div></td><td>до 5 месяцев</td><td class="col-ooc-term">(до 25 мин)</td></tr>
+              <tr><td class="col-article">15.5 (FP)</td><td class="col-description"><div class="col-description-content"><span>Халатность, ненадлежащее исполнение должностным лицом своих обязанностей</span><span class="edit-note-btn">✏️</span></div></td><td>1 год</td><td class="col-ooc-term">(60 мин)</td></tr>
+              <tr><td class="col-article">17.1 (FP)</td><td class="col-description"><div class="col-description-content"><span>Посягательство на жизнь сотрудника государственной организации <span class="annotation">[Нападение на офицера при исполнении]</span></span><span class="edit-note-btn">✏️</span></div></td><td>1 год</td><td class="col-ooc-term">(60 мин)</td></tr>
+              <tr><td class="col-article">17.2 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Угроза расправой над сотрудником государственной организации</span><span class="edit-note-btn">✏️</span></div></td><td>до 5 месяцев</td><td class="col-ooc-term">(до 25 мин)</td></tr>
+              <tr><td class="col-article">17.3 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Oскорбление сотрудника государственной структуры при исполнении</span><span class="edit-note-btn">✏️</span></div></td><td>до 4 месяцев</td><td class="col-ooc-term">(до 20 мин)</td></tr>
+              <tr><td class="col-article">17.6 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Неповиновение законному требованию сотрудника силовой структуры (FIB,LSPD,LSSD,NG,SASPA,USSS,USMS)</span><span class="edit-note-btn">✏️</span></div></td><td>до 5 месяцев</td><td class="col-ooc-term">(до 25 мин)</td></tr>
+              <tr><td class="col-article">17.6.1 (FP)</td><td class="col-description"><div class="col-description-content"><span>Неповиновение законному требованию правомочного лица (Губернатор, Ген. Прокурор и др.)</span><span class="edit-note-btn">✏️</span></div></td><td>1 год</td><td class="col-ooc-term">(60 мин)</td></tr>
+              <tr><td class="col-article">17.7 (КПЗ)</td><td class="col-description"><div class="col-description-content"><span>Отказ от оплаты штрафа выписаным FIB LSPD LSSD</span><span class="edit-note-btn">✏️</span></div></td><td>до 8 месяцев</td><td class="col-ooc-term">(до 40 мин)</td></tr>
+              <tr><td class="col-article">17.8 (FP)</td><td class="col-description"><div class="col-description-content"><span>Попытка побега от сотрудника правоохранительной структуры в ходе процесса задержания или ареста</span><span class="edit-note-btn">✏️</span></div></td><td>1 год</td><td class="col-ooc-term">(60 мин)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="procedural-right">
+          <div class="info-block"><h3>Правило Миранды</h3><p>Вы имеете право хранить молчание. Всё, что вы скажете, может и будет использовано против Вас. Вы имеете право на один телефонный звонок. Также Вы имеете право на адвоката. Если вам необходим адвокат, он будет для Вас запрошен. Вы понимаете свои права?</p></div>
+          <div class="info-block"><h3>Порядок задержания</h3><ol><li>Надеть наручники.</li><li>Предоставить удостоверение/жетон/нашивку/бейдж.</li><li>Назвать статью по которой задержан и основания задержания.</li><li>Провести обыск, при надобности можете изъять нелегал.</li><li>Зачитать Миранду.</li><li>Доставить человека в КПЗ или Federal Prison.</li></ol></div>
+          <div class="info-block"><h3>Основания для задержания</h3><ol><li>Лицо застигнуто в момент совершения преступления.</li><li>Три и более свидетелей.</li><li>Когда есть видео фиксация совершенного преступления этим лицом.</li><li>Имеется ордер на арест.</li><li>При наличии существенных фактов о виновности в преступлении.</li><li>Когда выдвинуто законное требование Губернатора, Судьи, Прокурора.</li><li>Нахождение в розыске на основании нормативного документа или ориентировки.</li></ol></div>
+          <div class="info-block"><h3>Порядок ареста</h3><ol><li>Разъяснить причину ареста подозреваемому.</li><li>Изъять нелегал при посадке в FP.</li><li>Заполнить бланк ареста.</li><li>Поместить арестованного в место отбывания наказания.</li></ol></div>
+           <div class="info-block"><h3>Тен-коды</h3><div class="ten-codes"><span>10-0 Отмена</span><span>10-3 Прекратите радиобмен</span><span>10-4 Принято</span><span>10-70 Требуется поддержка</span><span>10-20 Местоположение</span><span>10-77 Расчетное время прибытия</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- МОДАЛЬНОЕ ОКНО ДЛЯ РЕДАКТИРОВАНИЯ -->
+<div id="note-modal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 id="modal-title">Редактировать примечание</h3>
+    <textarea id="note-input" placeholder="Введите ваше примечание..."></textarea>
+    <div class="modal-actions">
+      <button id="save-note-btn" class="modal-btn btn-save">Сохранить</button>
+      <button id="delete-note-btn" class="modal-btn btn-delete">Удалить примечание</button>
+    </div>
+  </div>
+</div>
+
+<!-- ИЗМЕНЕНИЕ 2: ГЛОБАЛЬНЫЙ ТУЛТИП -->
+<div id="global-tooltip"></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // --- Логика для табов ---
+    const tabs = document.querySelectorAll('.tab-link');
+    const tabContentsWrapper = document.querySelector('.main-content > div');
+    const contents = tabContentsWrapper.querySelectorAll('.tab-content');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function(event) {
+            event.preventDefault();
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            document.querySelector(this.getAttribute('href')).classList.add('active');
+        });
+    });
+
+    // --- Логика для конструктора примечаний ---
+    const modal = document.getElementById('note-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const noteInput = document.getElementById('note-input');
+    const saveBtn = document.getElementById('save-note-btn');
+    const deleteBtn = document.getElementById('delete-note-btn');
+    const globalTooltip = document.getElementById('global-tooltip');
+    let currentArticleCell = null;
+
+    function getArticleId(cell) {
+        return cell.closest('tr').querySelector('.col-article').textContent.trim();
+    }
+
+    function openModal(cell) {
+        currentArticleCell = cell;
+        const articleId = getArticleId(cell);
+        const articleName = cell.querySelector('.col-description-content > span:first-child').textContent.trim();
+        
+        modalTitle.textContent = `Примечание к: "${articleName.substring(0, 30)}..."`;
+        noteInput.value = localStorage.getItem(articleId) || '';
+        modal.style.display = 'flex';
+        noteInput.focus();
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+        currentArticleCell = null;
+    }
+
+    function saveNote() {
+        if (!currentArticleCell) return;
+        const articleId = getArticleId(currentArticleCell);
+        const noteText = noteInput.value.trim();
+
+        if (noteText) {
+            localStorage.setItem(articleId, noteText);
+        } else {
+            localStorage.removeItem(articleId);
+        }
+        updateNoteIndicator(currentArticleCell, noteText);
+        closeModal();
+    }
+
+    function deleteNote() {
+        if (!currentArticleCell) return;
+        const articleId = getArticleId(currentArticleCell);
+        localStorage.removeItem(articleId);
+        updateNoteIndicator(currentArticleCell, ''); 
+        closeModal();
+    }
+    
+    // Функция для обновления индикатора заметки (добавления/удаления класса)
+    function updateNoteIndicator(cell, text) {
+        if (text) {
+            cell.classList.add('has-note');
+        } else {
+            cell.classList.remove('has-note');
+        }
+    }
+
+    // --- Логика для ГЛОБАЛЬНОГО ТУЛТИПА ---
+    function showTooltip(event) {
+        const target = event.currentTarget; // The cell itself
+        const articleId = getArticleId(target);
+        const noteText = localStorage.getItem(articleId);
+
+        if (noteText) {
+            globalTooltip.textContent = noteText;
+            
+            const rect = target.getBoundingClientRect();
+            globalTooltip.style.left = `${rect.left + rect.width / 2}px`;
+            globalTooltip.style.top = `${rect.top}px`;
+            globalTooltip.style.transform = `translate(-50%, -105%)`;
+
+            globalTooltip.style.visibility = 'visible';
+            globalTooltip.style.opacity = '1';
+        }
+    }
+    function hideTooltip() {
+        globalTooltip.style.visibility = 'hidden';
+        globalTooltip.style.opacity = '0';
+    }
+    
+    // --- Навешиваем обработчики ---
+    function initializeNoteConstructor() {
+        // Кнопки редактирования
+        document.querySelectorAll('.edit-note-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openModal(e.target.closest('.col-description'));
+            });
+        });
+
+        // Показ/скрытие тултипа
+        document.querySelectorAll('.col-description').forEach(cell => {
+            cell.addEventListener('mouseenter', showTooltip);
+            cell.addEventListener('mouseleave', hideTooltip);
+        });
+    }
+    
+    saveBtn.addEventListener('click', saveNote);
+    deleteBtn.addEventListener('click', deleteNote);
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+    
+    // --- Загрузка существующих примечаний при старте ---
+    function loadNotes() {
+        document.querySelectorAll('.note-table-body tr').forEach(row => {
+            const descriptionCell = row.querySelector('.col-description');
+            if(descriptionCell) {
+                const articleId = getArticleId(descriptionCell);
+                const savedNote = localStorage.getItem(articleId);
+                if (savedNote) {
+                    updateNoteIndicator(descriptionCell, savedNote);
+                }
+            }
+        });
+    }
+
+    loadNotes();
+    initializeNoteConstructor();
+  });
+</script>
+
+
+</body>
+</html>
